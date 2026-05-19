@@ -8,15 +8,7 @@ add_executable(hipstatevec-test
   test_conformance.cpp
 )
 target_compile_features(hipstatevec-test PRIVATE cxx_std_17)
-target_link_libraries(hipstatevec-test PRIVATE roc::hipstatevec)
-if(HIPSTATEVEC_ENABLE_HIP)
-  target_compile_definitions(hipstatevec-test PRIVATE HIPSTATEVEC_ENABLE_HIP=1)
-  target_link_libraries(hipstatevec-test PRIVATE hip::host)
-endif()
-if(HIPSTATEVEC_ENABLE_CUDA)
-  target_compile_definitions(hipstatevec-test PRIVATE HIPSTATEVEC_ENABLE_CUDA=1)
-  target_link_libraries(hipstatevec-test PRIVATE CUDA::cudart)
-endif()
+target_link_libraries(hipstatevec-test PRIVATE roc::hipstatevec hip::host)
 
 if(TARGET GTest::gtest_main)
   target_link_libraries(hipstatevec-test PRIVATE GTest::gtest_main)

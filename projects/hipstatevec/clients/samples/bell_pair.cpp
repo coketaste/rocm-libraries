@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MIT
  *
  * Bell-pair sample using the hipSTATEVEC camelCase API. Identical
- * structure to the rocSTATEVEC sample; the source is portable across
- * AMD and NVIDIA backends.
+ * structure to the rocSTATEVEC sample; runs on AMD ROCm via the
+ * rocSTATEVEC pass-through.
  * ************************************************************************ */
 
 #include <hipstatevec.h>

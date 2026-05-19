@@ -2,22 +2,15 @@
  * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
  * SPDX-License-Identifier: MIT
  *
- * Phase 11 — cross-vendor conformance tests.
+ * Conformance tests for the AMD pass-through to rocstatevec.
  *
- * Each TEST below has been written so that the same source compiles and
- * runs identically on:
- *   - AMD: hipSTATEVEC compiled with HIPSTATEVEC_ENABLE_HIP, dispatching
- *     to rocstatevec on a HIP runtime.
- *   - NVIDIA: hipSTATEVEC compiled with HIPSTATEVEC_ENABLE_CUDA, the NV
- *     backend forwarding to cuStateVec on a CUDA runtime.
- *
- * The host-visible API surface is identical between the two builds, so
- * we cover one source set with two CMake configurations rather than two
- * source files. Numerical tolerances are chosen so both backends pass at
- * the documented FP64/FP32 ULP budgets.
+ * Numerical tolerances are chosen to match the FP64/FP32 budgets
+ * documented in the rocSTATEVEC test fixtures.
  * ************************************************************************ */
 
 #include <hipstatevec.h>
+
+#include <hip/hip_runtime.h>
 
 #include <gtest/gtest.h>
 
@@ -30,8 +23,6 @@ namespace
 {
 constexpr double tol_fp64 = 1e-10;
 
-#if defined(HIPSTATEVEC_ENABLE_HIP)
-#include <hip/hip_runtime.h>
 inline bool has_gpu()
 {
     int n = 0;
@@ -41,24 +32,6 @@ inline void* dev_alloc(size_t b) { void* p = nullptr; hipMalloc(&p, b); return p
 inline void  dev_free(void* p)   { if(p) hipFree(p); }
 inline void  dev_h2d(void* d, const void* h, size_t b) { hipMemcpy(d, h, b, hipMemcpyHostToDevice); }
 inline void  dev_d2h(void* h, const void* d, size_t b) { hipMemcpy(h, d, b, hipMemcpyDeviceToHost); }
-#elif defined(HIPSTATEVEC_ENABLE_CUDA)
-#include <cuda_runtime.h>
-inline bool has_gpu()
-{
-    int n = 0;
-    return cudaGetDeviceCount(&n) == cudaSuccess && n > 0;
-}
-inline void* dev_alloc(size_t b) { void* p = nullptr; cudaMalloc(&p, b); return p; }
-inline void  dev_free(void* p)   { if(p) cudaFree(p); }
-inline void  dev_h2d(void* d, const void* h, size_t b) { cudaMemcpy(d, h, b, cudaMemcpyHostToDevice); }
-inline void  dev_d2h(void* h, const void* d, size_t b) { cudaMemcpy(h, d, b, cudaMemcpyDeviceToHost); }
-#else
-inline bool has_gpu() { return false; }
-inline void* dev_alloc(size_t)               { return nullptr; }
-inline void  dev_free(void*)                 {}
-inline void  dev_h2d(void*, const void*, size_t) {}
-inline void  dev_d2h(void*, const void*, size_t) {}
-#endif
 
 struct hipsv_handle
 {

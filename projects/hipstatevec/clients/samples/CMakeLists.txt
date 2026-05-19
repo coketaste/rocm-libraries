@@ -4,7 +4,4 @@
 # ########################################################################
 
 add_executable(hipstatevec-bell-pair bell_pair.cpp)
-target_link_libraries(hipstatevec-bell-pair PRIVATE roc::hipstatevec)
-if(HIPSTATEVEC_ENABLE_HIP)
-  target_link_libraries(hipstatevec-bell-pair PRIVATE hip::host)
-endif()
+target_link_libraries(hipstatevec-bell-pair PRIVATE roc::hipstatevec hip::host)

@@ -21,12 +21,11 @@ Documentation for hipSTATEVEC is available at
   with cuStateVec 1.7.x (cuQuantum 24.11) is bijective and lexical:
   `s/cu/hip/` rewrites a consumer compiled against `<custatevec.h>` to a
   consumer of `<hipstatevec.h>`.
-* AMD backend: pass-through to rocSTATEVEC, gated on `HIPSTATEVEC_ENABLE_HIP=ON`.
-* NVIDIA backend: pass-through to cuStateVec, gated on `HIPSTATEVEC_ENABLE_CUDA=ON`.
+* AMD-only backend: pass-through to rocSTATEVEC, runs on AMD ROCm via
+  the HIP runtime. There is no NVIDIA / CUDA backend.
 
 ### Notes
 
 * Single-node only. MGMN/distributed APIs are deferred to a later major version.
 * Headers are independent: including `<hipstatevec.h>` does **not** require
-  `<custatevec.h>` to be installed on AMD, and does not require
-  rocSTATEVEC headers on NVIDIA.
+  `<custatevec.h>` to be installed.

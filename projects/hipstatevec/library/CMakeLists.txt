@@ -27,27 +27,14 @@ set(hipstatevec_headers_public
 
 source_group("Header Files\\Public" FILES ${hipstatevec_headers_public})
 
-if(HIPSTATEVEC_ENABLE_HIP)
-  set(hipstatevec_source
-    src/amd_detail/hipstatevec_amd.cpp
-  )
-  set(hipstatevec_backend_libs hip::host roc::rocstatevec)
-  set(hipstatevec_backend_defines HIPSTATEVEC_ENABLE_HIP=1)
-elseif(HIPSTATEVEC_ENABLE_CUDA)
-  set(hipstatevec_source
-    src/nvidia_detail/hipstatevec_nv.cpp
-  )
-  set(hipstatevec_backend_libs CUDA::cudart)
-  set(hipstatevec_backend_defines HIPSTATEVEC_ENABLE_CUDA=1 __HIP_PLATFORM_NVIDIA__=1)
-  if(custatevec_FOUND)
-    list(APPEND hipstatevec_backend_defines HIPSTATEVEC_HAS_CUSTATEVEC=1)
-  endif()
-endif()
+set(hipstatevec_source
+  src/amd_detail/hipstatevec_amd.cpp
+)
 
 add_library(hipstatevec ${hipstatevec_source} ${hipstatevec_headers_public})
 add_library(roc::hipstatevec ALIAS hipstatevec)
 
-target_compile_definitions(hipstatevec PRIVATE ${hipstatevec_backend_defines})
+target_compile_definitions(hipstatevec PRIVATE HIPSTATEVEC_BACKEND_AMD=1)
 
 target_compile_options(hipstatevec PRIVATE -Wno-unused-command-line-argument -Wall)
 
@@ -58,10 +45,7 @@ target_include_directories(hipstatevec
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(hipstatevec PRIVATE ${hipstatevec_backend_libs})
-if(HIPSTATEVEC_ENABLE_CUDA)
-  target_link_libraries(hipstatevec PRIVATE custatevec)
-endif()
+target_link_libraries(hipstatevec PRIVATE hip::host roc::rocstatevec)
 
 set_target_properties(hipstatevec PROPERTIES
   VERSION   ${hipstatevec_VERSION}

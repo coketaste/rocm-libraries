@@ -1,43 +1,41 @@
 .. meta::
   :description: hipSTATEVEC build and install
-  :keywords: hipSTATEVEC, install, build, cmake, ROCm, CUDA
+  :keywords: hipSTATEVEC, install, build, cmake, ROCm
 
 .. _hipstatevec-install:
 
 Building and installing hipSTATEVEC
 ====================================
 
-Backend selection
------------------
+hipSTATEVEC is an AMD-ROCm-only library. Its only backend is rocSTATEVEC.
 
-hipSTATEVEC requires exactly one backend to be enabled at configure time.
-
-AMD (HIP, default):
+Standalone build
+----------------
 
 .. code-block:: bash
 
    cmake -S . -B build \
-     -DHIPSTATEVEC_ENABLE_HIP=ON \
-     -DHIPSTATEVEC_ENABLE_CUDA=OFF \
      -DBUILD_CLIENTS_TESTS=ON
    cmake --build build -j
 
-NVIDIA (CUDA, requires cuQuantum SDK on ``CMAKE_PREFIX_PATH``):
+Superbuild
+----------
+
+Under the rocm-libraries superbuild, hipSTATEVEC builds together with
+rocSTATEVEC when statevec is opted-in:
 
 .. code-block:: bash
 
-   cmake -S . -B build \
-     -DHIPSTATEVEC_ENABLE_HIP=OFF \
-     -DHIPSTATEVEC_ENABLE_CUDA=ON \
-     -DCMAKE_PREFIX_PATH=/path/to/cuquantum \
-     -DBUILD_CLIENTS_TESTS=ON
+   cmake -S rocm-libraries -B build \
+     -DTHEROCK_ENABLE_STATEVEC=ON
    cmake --build build -j
 
 Run the conformance tests
 -------------------------
 
-The same ``clients/tests/`` source set runs against either backend; results
-must match within the documented FP64/FP32 tolerances.
+The ``clients/tests/`` source set runs against the AMD backend; results
+must match the documented FP64/FP32 tolerances declared in the
+rocSTATEVEC test fixtures.
 
 .. code-block:: bash
 

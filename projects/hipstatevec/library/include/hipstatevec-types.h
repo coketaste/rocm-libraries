@@ -2,8 +2,14 @@
  * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
  * SPDX-License-Identifier: MIT
  *
- * Reverse-engineered from cuStateVec public API documentation
- * (cuQuantum 24.11 / cuStateVec 1.7.x); clean-room implementation.
+ * Public C type definitions for hipSTATEVEC.
+ *
+ * Function-name shape and enum numeric values mirror NVIDIA's cuStateVec
+ * (cuQuantum 24.11 / cuStateVec 1.7.x) so that consumer code written
+ * against `<custatevec.h>` ports to `<hipstatevec.h>` with a mechanical
+ * `s/cu/hip/` rename. The library is built and runs only against AMD
+ * ROCm via the rocSTATEVEC backend; it does not link to any NVIDIA
+ * runtime.
  * ************************************************************************ */
 
 #ifndef HIPSTATEVEC_TYPES_H
@@ -13,9 +19,7 @@
 #include <stdint.h>
 
 /// \cond DO_NOT_DOCUMENT
-#if !defined(__HIP_PLATFORM_NVIDIA__)
 typedef struct ihipStream_t* hipStream_t;
-#endif
 /// \endcond
 
 /*! \brief 64-bit signed integer used for state-vector indices. */
@@ -115,8 +119,7 @@ typedef struct _hipstatevecDeviceMemHandler {
 typedef void (*hipstatevecLoggerCallback_t)(int32_t level, const char* function_name, const char* message);
 typedef void (*hipstatevecLoggerCallbackData_t)(int32_t level, const char* function_name, const char* message, void* user_data);
 
-/*! \brief Pair of qubit indices used by `hipstatevecSwapIndexBits`.
- *  Layout-compatible with CUDA `int2`. */
+/*! \brief Pair of qubit indices used by `hipstatevecSwapIndexBits`. */
 typedef struct _hipstatevecIndexPair {
     int32_t x;
     int32_t y;
