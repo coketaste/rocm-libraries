@@ -1,0 +1,18 @@
+/* ************************************************************************
+ * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+ * SPDX-License-Identifier: MIT
+ * ************************************************************************ */
+
+#ifndef ROCTENSORNET_VERSION_H
+#define ROCTENSORNET_VERSION_H
+
+#define ROCTENSORNET_VERSION_MAJOR   @PROJECT_VERSION_MAJOR@
+#define ROCTENSORNET_VERSION_MINOR   @PROJECT_VERSION_MINOR@
+#define ROCTENSORNET_VERSION_PATCH   @PROJECT_VERSION_PATCH@
+
+#define ROCTENSORNET_VERSION \
+    (ROCTENSORNET_VERSION_MAJOR * 10000 \
+     + ROCTENSORNET_VERSION_MINOR * 100 \
+     + ROCTENSORNET_VERSION_PATCH)
+
+#endif /* ROCTENSORNET_VERSION_H */
