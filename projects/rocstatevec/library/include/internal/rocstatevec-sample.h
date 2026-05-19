@@ -48,7 +48,11 @@ rocstatevec_status rocstatevec_sampler_get_squared_norm(
 
 /*! \brief Apply a sub-statevector probability offset to a sampler so that
  *         its drawn bit-strings can be combined with siblings on other devices.
- *  Bijection: \p custatevecSamplerApplySubSVOffset. */
+ *  Bijection: \p custatevecSamplerApplySubSVOffset.
+ *
+ *  \note rocSTATEVEC v0.1.0 is single-node only and returns
+ *        \c ROCSTATEVEC_STATUS_NOT_SUPPORTED unconditionally from this
+ *        entry point. Single-node consumers should not call it. */
 rocstatevec_status rocstatevec_sampler_apply_sub_sv_offset(
     rocstatevec_handle              handle,
     rocstatevec_sampler_descriptor  sampler,

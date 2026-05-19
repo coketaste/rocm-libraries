@@ -10,8 +10,12 @@
  *      record the total norm as `cum[N-1]`.
  *   2. Sample: for each shot s, scale randnum[s] by the total norm to get
  *      a target, binary-search the cumulative table for the smallest k
- *      with cum[k] >= target, then project k onto the bit_ordering subset
- *      to produce the output bit-string.
+ *      with cum[k] > target (upper_bound semantics, so zero-mass
+ *      outcomes are never selected even when randnum == 0 happens to
+ *      hit a leading zero-probability bin). Then project k onto the
+ *      bit_ordering subset to produce the output bit-string.
+ *   3. If the caller asked for ASCENDING_ORDER output, the host buffer
+ *      is sorted in place after the device copy-back.
  *
  *   The sampler stores the cumulative table on the heap; it is freed by
  *   `rocstatevec_sampler_destroy`. The workspace size returned by
@@ -23,6 +27,8 @@
 #include "rocstatevec_kernels.hpp"
 
 #include <rocprim/rocprim.hpp>
+
+#include <algorithm>
 
 namespace rocstatevec
 {
@@ -63,16 +69,19 @@ __global__ void k_search_and_project(
     if(target < 0.0)   target = 0.0;
     if(target > total) target = total;
 
-    // Lower-bound binary search for smallest k where cum[k] >= target.
-    rocstatevec_index_t lo = 0, hi = N - 1;
+    // Upper-bound binary search for smallest k where cum[k] > target.
+    // Strict `>` skips leading zero-mass outcomes (e.g. probs[0] == 0
+    // with randnum == 0) and hands back the first outcome that
+    // actually carries probability.
+    rocstatevec_index_t lo = 0, hi = N;
     while(lo < hi)
     {
         rocstatevec_index_t mid = lo + (hi - lo) / 2;
-        if(cum[mid] < target) lo = mid + 1;
-        else                  hi = mid;
+        if(cum[mid] <= target) lo = mid + 1;
+        else                   hi = mid;
     }
 
-    rocstatevec_index_t k   = lo;
+    rocstatevec_index_t k   = (lo < N) ? lo : (N - 1);
     rocstatevec_index_t out = 0;
     for(uint32_t b = 0; b < bs_len; ++b)
         out |= (((k >> bit_ordering[b]) & 1) << b);
@@ -185,22 +194,26 @@ extern "C" rocstatevec_status rocstatevec_sampler_get_squared_norm(
 
 extern "C" rocstatevec_status rocstatevec_sampler_apply_sub_sv_offset(
     rocstatevec_handle h, rocstatevec_sampler_descriptor sampler,
-    int32_t /*sub_sv_index*/, uint32_t /*n_sub_svs*/, double offset, double norm)
+    int32_t /*sub_sv_index*/, uint32_t /*n_sub_svs*/,
+    double /*offset*/, double /*norm*/)
 {
+    // This entry point is meaningful only for distributed (multi-GPU,
+    // multi-node) sampling, which rocSTATEVEC v0.1.0 does not implement.
+    // Returning NOT_SUPPORTED prevents callers from silently mis-using
+    // single-node CDFs as if they were sub-sub-sv slices of a global
+    // distribution. Single-node consumers should never call this entry
+    // point.
     using namespace rocstatevec;
     ROCSTATEVEC_CHECK_HANDLE(h);
     ROCSTATEVEC_CHECK_PTR(sampler);
-    auto& sd = *reinterpret_cast<sampler_descriptor*>(sampler);
-    sd.offset     = offset;
-    sd.total_norm = norm;
-    return ROCSTATEVEC_STATUS_SUCCESS;
+    return ROCSTATEVEC_STATUS_NOT_SUPPORTED;
 }
 
 extern "C" rocstatevec_status rocstatevec_sampler_sample(
     rocstatevec_handle h, rocstatevec_sampler_descriptor sampler,
     rocstatevec_index_t* bit_strings, const int32_t* bit_ordering,
     uint32_t bs_len, const double* randnums, uint32_t n_shots,
-    rocstatevec_sampler_output /*output*/)
+    rocstatevec_sampler_output output)
 {
     using namespace rocstatevec;
     ROCSTATEVEC_CHECK_HANDLE(h);
@@ -208,6 +221,9 @@ extern "C" rocstatevec_status rocstatevec_sampler_sample(
     ROCSTATEVEC_CHECK_PTR(bit_strings); ROCSTATEVEC_CHECK_PTR(bit_ordering);
     ROCSTATEVEC_CHECK_PTR(randnums);
     if(bs_len == 0 || n_shots == 0) return ROCSTATEVEC_STATUS_INVALID_VALUE;
+    if(output != ROCSTATEVEC_SAMPLER_OUTPUT_RANDNUM_ORDER &&
+       output != ROCSTATEVEC_SAMPLER_OUTPUT_ASCENDING_ORDER)
+        return ROCSTATEVEC_STATUS_INVALID_VALUE;
 
     auto& sd = *reinterpret_cast<sampler_descriptor*>(sampler);
     if(!sd.preprocessed) return ROCSTATEVEC_STATUS_SAMPLER_NOT_PREPROCESSED;
@@ -240,5 +256,15 @@ extern "C" rocstatevec_status rocstatevec_sampler_sample(
                                          n_shots * sizeof(rocstatevec_index_t),
                                          hipMemcpyDeviceToHost, s));
     ROCSTATEVEC_HIP_CHECK(hipStreamSynchronize(s));
+
+    if(output == ROCSTATEVEC_SAMPLER_OUTPUT_ASCENDING_ORDER)
+    {
+        // n_shots is uint32_t and the host buffer is contiguous; an
+        // O(n log n) host sort is well within the per-batch budget for
+        // realistic shot counts and matches the cuStateVec contract
+        // for ASCENDING_ORDER.
+        std::sort(bit_strings, bit_strings + n_shots);
+    }
+
     return ROCSTATEVEC_STATUS_SUCCESS;
 }

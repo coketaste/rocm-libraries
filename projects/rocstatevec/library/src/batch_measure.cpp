@@ -9,11 +9,13 @@
  * Algorithm:
  *   1. Use `abs2_sum_array` to get the probability mass for each of the
  *      2^bs_len possible outcomes.
- *   2. Build cumulative distribution on the host (bs_len <= ~30 in
- *      realistic use; the array fits in cache).
- *   3. Pick the smallest k with cum[k] >= randnum * total_norm.
- *   4. Decompose k into bits and write into bit_string.
- *   5. If collapse requested, call `collapse_by_bit_string`.
+ *   2. Walk the outcome bins on the host (bs_len <= ~30 in realistic
+ *      use; the array fits in cache) and pick the smallest k with
+ *      cumulative mass strictly greater than randnum * total_norm
+ *      (upper_bound semantics, so a leading zero-mass bin is never
+ *      selected even when randnum == 0).
+ *   3. Decompose k into bits and write into bit_string.
+ *   4. If collapse requested, call `collapse_by_bit_string`.
  * ************************************************************************ */
 
 #include "rocstatevec_internal.hpp"
@@ -53,13 +55,26 @@ static rocstatevec_status batch_core(
     if(target < 0.0)        target = 0.0;
     if(target > total_norm) target = total_norm;
 
-    double  acc = 0.0;
-    size_t  pick = sz - 1;
+    // Inverse-CDF lookup using strict `>` (upper_bound semantics).
+    // This skips leading zero-mass outcomes (which a `>=` test would
+    // erroneously select when target == 0) and only commits to an
+    // outcome once the cumulative mass has actually exceeded target.
+    double  acc          = 0.0;
+    size_t  pick         = sz;
+    size_t  last_nonzero = 0;
+    bool    have_nonzero = false;
     for(size_t i = 0; i < sz; ++i)
     {
+        if(probs[i] > 0.0)
+        {
+            last_nonzero = i;
+            have_nonzero = true;
+        }
         acc += probs[i];
-        if(acc >= target) { pick = i; break; }
+        if(acc > target) { pick = i; break; }
     }
+    if(pick == sz)  // randnum * total_norm hit the float-rounded edge
+        pick = have_nonzero ? last_nonzero : 0;
 
     for(uint32_t b = 0; b < bs_len; ++b)
         bit_string[b] = (pick >> b) & 1;
