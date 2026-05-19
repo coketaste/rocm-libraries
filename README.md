@@ -51,6 +51,8 @@ This table provides the current status of the migration of specific components a
 | `tensile`           | Completed   | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/tensile/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/tensile/job/develop/lastBuild/) |
 | `rocwmma`           | Completed   | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/rocwmma/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/rocwmma/job/develop/lastBuild/) |
 | `hiptensor`           | Completed  | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/hiptensor/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/hiptensor/job/develop/lastBuild/) |
+| `roctensornet`        | In Progress | (TheRock CI tensornet matrix) |
+| `hiptensornet`        | In Progress | (TheRock CI tensornet matrix) |
 
 ## Nomenclature
 
@@ -74,6 +76,7 @@ projects/
   hipsparse/
   hipsparselt/
   hiptensor/
+  hiptensornet/
   miopen/
   rocblas/
   rocfft/
@@ -81,6 +84,7 @@ projects/
   rocrand/
   rocsolver/
   rocsparse/
+  roctensornet/
   rocthrust/
   rocwmma/
 shared/

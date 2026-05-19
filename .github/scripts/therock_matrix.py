@@ -30,6 +30,8 @@ subtree_to_project_map = {
     "projects/rocsparse": "sparse",
     "projects/rocthrust": "prim",
     "projects/rocwmma": "rocwmma",
+    "projects/roctensornet": "tensornet",
+    "projects/hiptensornet": "tensornet",
     "shared/mxdatagenerator": "blas",
     "shared/origami": "blas",
     "shared/rocroller": "blas",
@@ -78,6 +80,10 @@ project_map = {
     "fusilli-provider": {
         "cmake_options": ["-DTHEROCK_ENABLE_IREE_LIBS=ON"],
         "projects_to_test": ["fusilliprovider"],
+    },
+    "tensornet": {
+        "cmake_options": ["-DTHEROCK_ENABLE_TENSORNET=ON"],
+        "projects_to_test": ["roctensornet", "hiptensornet"],
     },
 }
 

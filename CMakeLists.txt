@@ -56,7 +56,23 @@ set(AVAILABLE_COMPONENTS
     hipblaslt-provider
     hip-kernel-provider
     hipdnn-samples
+    # quantum simulation
+    roctensornet
+    hiptensornet
 )
+
+# Convenience meta-option: enable all tensornet components in a single
+# flag. When `THEROCK_ENABLE_TENSORNET=ON` is requested the build adds
+# `roctensornet` and `hiptensornet` to the enabled components list
+# unless they are already excluded explicitly.
+option(THEROCK_ENABLE_TENSORNET "Enable the rocTENSORNET / hipTENSORNET quantum tensor-network libraries" OFF)
+if(THEROCK_ENABLE_TENSORNET)
+    foreach(_comp roctensornet hiptensornet)
+        if(NOT _comp IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
+            list(APPEND ROCM_LIBS_ENABLE_COMPONENTS ${_comp})
+        endif()
+    endforeach()
+endif()
 
 set(UNSUPPORTED_COMPONENTS
     # shared
@@ -232,6 +248,23 @@ if("hipdnn-samples" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
             add_dependencies(hipdnn_samples ${_provider_target})
         endif()
     endforeach()
+endif()
+
+# --- Quantum tensor-network libraries ---
+if("roctensornet" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
+    add_subdirectory_with_message(
+        COMPONENT roctensornet
+        PREFIX_PATH projects
+        EXPECT_TARGET roc::roctensornet
+    )
+endif()
+
+if("hiptensornet" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
+    add_subdirectory_with_message(
+        COMPONENT hiptensornet
+        PREFIX_PATH projects
+        EXPECT_TARGET roc::hiptensornet
+    )
 endif()
 
 # --- Projects not yet configured for superbuild ---
