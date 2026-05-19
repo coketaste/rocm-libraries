@@ -47,6 +47,13 @@ set(DEFAULT_COMPONENTS
     rocrand
 )
 
+# --- Opt-in component groups ---
+# `THEROCK_ENABLE_STATEVEC` mirrors the cmake_options list in
+# .github/scripts/therock_matrix.py so the `statevec` CI matrix entry can
+# actually configure and build rocstatevec / hipstatevec via the
+# superbuild. Off by default; turning it on prepends the components.
+option(THEROCK_ENABLE_STATEVEC "Build rocstatevec + hipstatevec" OFF)
+
 set(AVAILABLE_COMPONENTS
     ${DEFAULT_COMPONENTS}
     # dnn
@@ -56,6 +63,9 @@ set(AVAILABLE_COMPONENTS
     hipblaslt-provider
     hip-kernel-provider
     hipdnn-samples
+    # quantum state-vector simulation (opt-in via THEROCK_ENABLE_STATEVEC)
+    rocstatevec
+    hipstatevec
 )
 
 set(UNSUPPORTED_COMPONENTS
@@ -91,6 +101,12 @@ endif()
 
 if("all" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
     set(ROCM_LIBS_ENABLE_COMPONENTS ${DEFAULT_COMPONENTS})
+endif()
+
+# Honor opt-in component groups by appending to the enabled set.
+if(THEROCK_ENABLE_STATEVEC)
+    list(APPEND ROCM_LIBS_ENABLE_COMPONENTS rocstatevec hipstatevec)
+    list(REMOVE_DUPLICATES ROCM_LIBS_ENABLE_COMPONENTS)
 endif()
 
 message(STATUS "Enabling components:")
@@ -175,6 +191,23 @@ if("rocrand" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
         COMPONENT rocrand
         PREFIX_PATH projects
         EXPECT_TARGET rocrand
+    )
+endif()
+
+# --- Quantum state-vector simulation (depends on rocprim) ---
+if("rocstatevec" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
+    add_subdirectory_with_message(
+        COMPONENT rocstatevec
+        PREFIX_PATH projects
+        EXPECT_TARGET roc::rocstatevec
+    )
+endif()
+
+if("hipstatevec" IN_LIST ROCM_LIBS_ENABLE_COMPONENTS)
+    add_subdirectory_with_message(
+        COMPONENT hipstatevec
+        PREFIX_PATH projects
+        EXPECT_TARGET roc::hipstatevec
     )
 endif()
 

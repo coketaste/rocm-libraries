@@ -28,6 +28,8 @@ subtree_to_project_map = {
     "projects/rocrand": "rand",
     "projects/rocsolver": "solver",
     "projects/rocsparse": "sparse",
+    "projects/rocstatevec": "statevec",
+    "projects/hipstatevec": "statevec",
     "projects/rocthrust": "prim",
     "projects/rocwmma": "rocwmma",
     "shared/mxdatagenerator": "blas",
@@ -143,6 +145,11 @@ additional_options = {
         "cmake_options": ["-DTHEROCK_ENABLE_ROCWMMA=ON"],
         "projects_to_test": ["rocwmma"],
         "project_to_add": "blas",
+    },
+    "statevec": {
+        "cmake_options": ["-DTHEROCK_ENABLE_STATEVEC=ON"],
+        "projects_to_test": ["rocstatevec", "hipstatevec"],
+        "project_to_add": "prim",
     },
 }
 

@@ -51,6 +51,8 @@ This table provides the current status of the migration of specific components a
 | `tensile`           | Completed   | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/tensile/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/tensile/job/develop/lastBuild/) |
 | `rocwmma`           | Completed   | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/rocwmma/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/rocwmma/job/develop/lastBuild/) |
 | `hiptensor`           | Completed  | [![Math-CI](https://pcue-math-rocm-ci-apim.azure-api.net/buildstatus?job=/rocm-libraries/precheckin/hiptensor/develop&subject=MathCI)](http://math-ci.amd.com/job/rocm-libraries/job/precheckin/job/hiptensor/job/develop/lastBuild/) |
+| `rocstatevec`         | In Progress | _new project — clean-room state-vector simulation library; mirrors cuStateVec single-node API_ |
+| `hipstatevec`         | In Progress | _new project — portable wrapper exposing the cuStateVec-shaped API; dispatches to `rocstatevec` on AMD or `cuStateVec` on NVIDIA_ |
 
 ## Nomenclature
 
@@ -73,6 +75,7 @@ projects/
   hipsolver/
   hipsparse/
   hipsparselt/
+  hipstatevec/
   hiptensor/
   miopen/
   rocblas/
@@ -81,6 +84,7 @@ projects/
   rocrand/
   rocsolver/
   rocsparse/
+  rocstatevec/
   rocthrust/
   rocwmma/
 shared/

@@ -199,6 +199,24 @@
       "monorepo_source_of_truth": true
     },
     {
+      "name": "rocstatevec",
+      "url": "ROCm/rocSTATEVEC",
+      "branch": "develop",
+      "category": "projects",
+      "auto_subtree_pull": false,
+      "auto_subtree_push": false,
+      "monorepo_source_of_truth": true
+    },
+    {
+      "name": "hipstatevec",
+      "url": "ROCm/hipSTATEVEC",
+      "branch": "develop",
+      "category": "projects",
+      "auto_subtree_pull": false,
+      "auto_subtree_push": false,
+      "monorepo_source_of_truth": true
+    },
+    {
       "name": "rocthrust",
       "url": "ROCm/rocThrust",
       "branch": "develop",
