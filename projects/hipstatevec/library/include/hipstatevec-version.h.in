@@ -1,0 +1,20 @@
+/* ************************************************************************
+ * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+ * SPDX-License-Identifier: MIT
+ * ************************************************************************ */
+
+#ifndef HIPSTATEVEC_VERSION_H
+#define HIPSTATEVEC_VERSION_H
+
+// clang-format off
+#define HIPSTATEVEC_VERSION_MAJOR @hipstatevec_VERSION_MAJOR@
+#define HIPSTATEVEC_VERSION_MINOR @hipstatevec_VERSION_MINOR@
+#define HIPSTATEVEC_VERSION_PATCH @hipstatevec_VERSION_PATCH@
+#define HIPSTATEVEC_VERSION_TWEAK @hipstatevec_VERSION_TWEAK@
+// clang-format on
+
+/*! \brief cuStateVec public-API revision the camelCase surface mirrors. */
+#define HIPSTATEVEC_CUSTATEVEC_TARGET_MAJOR 1
+#define HIPSTATEVEC_CUSTATEVEC_TARGET_MINOR 7
+
+#endif /* HIPSTATEVEC_VERSION_H */

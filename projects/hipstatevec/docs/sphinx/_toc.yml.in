@@ -1,0 +1,9 @@
+defaults:
+  numbered: false
+
+root: index
+subtrees:
+- entries:
+  - file: install
+  - file: how-to
+  - file: reference

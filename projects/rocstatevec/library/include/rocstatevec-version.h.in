@@ -1,0 +1,24 @@
+/* ************************************************************************
+ * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+ * SPDX-License-Identifier: MIT
+ * ************************************************************************ */
+
+/*! \file
+ *  \brief rocstatevec-version.h provides the rocSTATEVEC library version
+ */
+
+#ifndef ROCSTATEVEC_VERSION_H
+#define ROCSTATEVEC_VERSION_H
+
+// clang-format off
+#define ROCSTATEVEC_VERSION_MAJOR @rocstatevec_VERSION_MAJOR@
+#define ROCSTATEVEC_VERSION_MINOR @rocstatevec_VERSION_MINOR@
+#define ROCSTATEVEC_VERSION_PATCH @rocstatevec_VERSION_PATCH@
+#define ROCSTATEVEC_VERSION_TWEAK @rocstatevec_VERSION_TWEAK@
+// clang-format on
+
+/*! \brief cuStateVec public-API revision this version of rocSTATEVEC mirrors. */
+#define ROCSTATEVEC_CUSTATEVEC_TARGET_MAJOR 1
+#define ROCSTATEVEC_CUSTATEVEC_TARGET_MINOR 7
+
+#endif /* ROCSTATEVEC_VERSION_H */

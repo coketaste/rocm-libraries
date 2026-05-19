@@ -1,0 +1,92 @@
+# ########################################################################
+# Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+# SPDX-License-Identifier: MIT
+# ########################################################################
+
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
+
+if(WIN32)
+  set(CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/package" CACHE PATH "Install path prefix")
+else()
+  set(CMAKE_INSTALL_PREFIX "/opt/rocm" CACHE PATH "Install path prefix")
+endif()
+
+list(APPEND CMAKE_PREFIX_PATH /opt/rocm/llvm /opt/rocm)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${ROCM_PATH}/lib/cmake/hip /opt/rocm/lib/cmake/hip /opt/rocm/hip/cmake)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+project(hipstatevec LANGUAGES CXX C)
+
+option(HIPSTATEVEC_ENABLE_HIP    "Build hipSTATEVEC against AMD rocSTATEVEC backend." ON)
+option(HIPSTATEVEC_ENABLE_CUDA   "Build hipSTATEVEC against NVIDIA cuStateVec backend." OFF)
+option(BUILD_SHARED_LIBS         "Build hipSTATEVEC as a shared library" ON)
+option(BUILD_CLIENTS_TESTS       "Build tests" OFF)
+option(BUILD_CLIENTS_SAMPLES     "Build samples" OFF)
+option(BUILD_DOCS                "Build documentation" OFF)
+
+if(HIPSTATEVEC_ENABLE_HIP AND HIPSTATEVEC_ENABLE_CUDA)
+  message(FATAL_ERROR "HIPSTATEVEC_ENABLE_HIP and HIPSTATEVEC_ENABLE_CUDA are mutually exclusive")
+endif()
+if(NOT HIPSTATEVEC_ENABLE_HIP AND NOT HIPSTATEVEC_ENABLE_CUDA)
+  message(FATAL_ERROR "Set exactly one of HIPSTATEVEC_ENABLE_HIP or HIPSTATEVEC_ENABLE_CUDA")
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+include(cmake/Dependencies.cmake)
+
+set(VERSION_STRING "0.1.0")
+set(SOVERSION_STRING "0.1")
+rocm_setup_version(VERSION ${VERSION_STRING})
+set(hipstatevec_SOVERSION ${SOVERSION_STRING})
+
+if(HIPSTATEVEC_ENABLE_HIP)
+  find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH} /opt/rocm)
+  # Under the rocm-libraries superbuild, rocstatevec has already been
+  # registered as `roc::rocstatevec` via add_subdirectory; skip the
+  # external config-package lookup so we link against the in-tree target.
+  if(NOT TARGET roc::rocstatevec)
+    find_package(rocstatevec REQUIRED CONFIG PATHS ${CMAKE_INSTALL_PREFIX} /opt/rocm)
+  endif()
+endif()
+
+if(HIPSTATEVEC_ENABLE_CUDA)
+  find_package(CUDAToolkit REQUIRED)
+  find_package(custatevec QUIET)
+  if(NOT custatevec_FOUND)
+    message(WARNING "cuStateVec (cuQuantum) not found via find_package; "
+                    "hipSTATEVEC NVIDIA backend will rely on plain "
+                    "-lcustatevec on the link line. Set CMAKE_PREFIX_PATH "
+                    "to point at your cuQuantum install.")
+  endif()
+endif()
+
+if(BUILD_CLIENTS_TESTS OR BUILD_CLIENTS_SAMPLES)
+  set(BUILD_CLIENTS ON)
+  if(BUILD_CLIENTS_TESTS) enable_testing() endif()
+endif()
+
+add_subdirectory(library)
+
+if(BUILD_CLIENTS)
+  add_subdirectory(clients)
+endif()
+
+if(BUILD_DOCS)
+  add_subdirectory(docs)
+endif()
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
+set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+set(package_name hipstatevec)
+rocm_create_package(
+  NAME ${package_name}
+  DESCRIPTION "Portable state-vector simulation API for HIP and CUDA"
+  MAINTAINER "hipSTATEVEC Maintainer <hipstatevec-maintainer@amd.com>"
+  LDCONFIG
+)
