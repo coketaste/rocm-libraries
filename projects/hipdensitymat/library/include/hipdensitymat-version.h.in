@@ -1,0 +1,20 @@
+/* ************************************************************************
+ * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+ * SPDX-License-Identifier: MIT
+ * ************************************************************************ */
+
+#ifndef HIPDENSITYMAT_VERSION_H
+#define HIPDENSITYMAT_VERSION_H
+
+// clang-format off
+#define HIPDENSITYMAT_VERSION_MAJOR @hipdensitymat_VERSION_MAJOR@
+#define HIPDENSITYMAT_VERSION_MINOR @hipdensitymat_VERSION_MINOR@
+#define HIPDENSITYMAT_VERSION_PATCH @hipdensitymat_VERSION_PATCH@
+#define HIPDENSITYMAT_VERSION_TWEAK @hipdensitymat_VERSION_TWEAK@
+// clang-format on
+
+/*! \brief cuDensityMat public-API revision the camelCase surface mirrors. */
+#define HIPDENSITYMAT_CUDENSITYMAT_TARGET_MAJOR 0
+#define HIPDENSITYMAT_CUDENSITYMAT_TARGET_MINOR 1
+
+#endif /* HIPDENSITYMAT_VERSION_H */

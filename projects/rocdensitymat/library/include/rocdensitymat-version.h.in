@@ -1,0 +1,24 @@
+/* ************************************************************************
+ * Copyright (C) Advanced Micro Devices, Inc. All rights Reserved.
+ * SPDX-License-Identifier: MIT
+ * ************************************************************************ */
+
+/*! \file
+ *  \brief rocdensitymat-version.h provides the rocDENSITYMAT library version
+ */
+
+#ifndef ROCDENSITYMAT_VERSION_H
+#define ROCDENSITYMAT_VERSION_H
+
+// clang-format off
+#define ROCDENSITYMAT_VERSION_MAJOR @rocdensitymat_VERSION_MAJOR@
+#define ROCDENSITYMAT_VERSION_MINOR @rocdensitymat_VERSION_MINOR@
+#define ROCDENSITYMAT_VERSION_PATCH @rocdensitymat_VERSION_PATCH@
+#define ROCDENSITYMAT_VERSION_TWEAK @rocdensitymat_VERSION_TWEAK@
+// clang-format on
+
+/*! \brief cuDensityMat public-API revision this version of rocDENSITYMAT mirrors. */
+#define ROCDENSITYMAT_CUDENSITYMAT_TARGET_MAJOR 0
+#define ROCDENSITYMAT_CUDENSITYMAT_TARGET_MINOR 1
+
+#endif /* ROCDENSITYMAT_VERSION_H */
